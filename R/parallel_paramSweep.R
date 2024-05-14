@@ -71,8 +71,8 @@ parallel_paramSweep <- function(n, n.real.cells, real.cells, pK, pN, data, orig.
   print("Calculating PC distance matrix...")
   nCells <- nrow(seu_wdoublets@meta.data)
   pca.coord <- seu_wdoublets@reductions$pca@cell.embeddings[ , PCs]
-  rm(seu_wdoublets);
-  gc()
+  # rm(seu_wdoublets);
+  # gc()
   dist.mat <- fields::rdist(pca.coord)[,1:n.real.cells]
 
   ## Pre-order PC distance matrix prior to iterating across pK for pANN computations
