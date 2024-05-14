@@ -80,7 +80,7 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
       real.cells1 <- c(real.cells1, rc1[idents[rc1] != idents[rc2]])
       real.cells2 <- c(real.cells2, rc2[idents[rc1] != idents[rc2]])
     }
-  rm(rc1, rc2)
+  rm(rc1, rc2);
   gc()
   Sys.sleep(10)
   }
@@ -95,7 +95,7 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
   ## Pre-process Seurat object
   print("Creating Seurat object...")
   seu_wdoublets <- CreateSeuratObject(counts = cbind(data, doublets))
-  rm(data, doublets)
+  rm(data, doublets);
   gc() # Free up memory
   Sys.sleep(10)
 
@@ -214,10 +214,10 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
       ann <- neighbors[neighbors > n_real.cells]
       pANN[[i+j-1, 1]] <- length(ann)/k
       if(get.neighbor.doublets) doublet.neighbors.list[[i+j-1]] <- (ann - n_real.cells)
-      rm(neighbors,ann) gc()
+      rm(neighbors,ann); gc()
     }
 
-    rm(dists)
+    rm(dists);
     gc()
     
     if(!is.infinite(batch.size))
