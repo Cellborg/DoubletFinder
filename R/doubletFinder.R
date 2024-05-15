@@ -101,7 +101,7 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
 
   if (!sct) {
     print("Normalizing Seurat object...")
-    seu_wdoublets <- NormalizeData(seu_wdoublets,
+    seu_wdoublets1 <- NormalizeData(seu_wdoublets,
                                    normalization.method = orig.commands$NormalizeData.RNA@params$normalization.method,
                                    scale.factor = orig.commands$NormalizeData.RNA@params$scale.factor,
                                    margin = orig.commands$NormalizeData.RNA@params$margin)
@@ -109,7 +109,7 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     gc() # Free up memory
     Sys.sleep(10)
 
-    seu_wdoublets <- FindVariableFeatures(seu_wdoublets,
+    seu_wdoublets2 <- FindVariableFeatures(seu_wdoublets1,
                                           selection.method = orig.commands$FindVariableFeatures.RNA$selection.method,
                                           loess.span = orig.commands$FindVariableFeatures.RNA$loess.span,
                                           clip.max = orig.commands$FindVariableFeatures.RNA$clip.max,
@@ -120,12 +120,12 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
                                           nfeatures = orig.commands$FindVariableFeatures.RNA$nfeatures,
                                           mean.cutoff = orig.commands$FindVariableFeatures.RNA$mean.cutoff,
                                           dispersion.cutoff = orig.commands$FindVariableFeatures.RNA$dispersion.cutoff)
-    rm(seu_wdoublets); 
+    rm(seu_wdoublets1); 
     gc() # Free up memory
     Sys.sleep(10)
 
     # print("Scaling data...")
-    seu_wdoublets <- ScaleData(seu_wdoublets,
+    seu_wdoublets3 <- ScaleData(seu_wdoublets2,
                                features = orig.commands$ScaleData.RNA$features,
                                model.use = orig.commands$ScaleData.RNA$model.use,
                                do.scale = orig.commands$ScaleData.RNA$do.scale,
@@ -138,7 +138,7 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     Sys.sleep(10) # Free up memory
 
     print("Running PCA...#1")
-    seu_wdoublets <- RunPCA(seu_wdoublets,
+    seu_wdoublets4 <- RunPCA(seu_wdoublets3,
                             features = orig.commands$ScaleData.RNA$features,
                             npcs = length(PCs),
                             rev.pca =  orig.commands$RunPCA.RNA$rev.pca,
@@ -148,8 +148,8 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     gc() # Free up memory
     Sys.sleep(10)
 
-    pca.coord <- seu_wdoublets@reductions$pca@cell.embeddings[ , PCs]
-    cell.names <- rownames(seu_wdoublets@meta.data)
+    pca.coord <- seu_wdoublets4@reductions$pca@cell.embeddings[ , PCs]
+    cell.names <- rownames(seu_wdoublets4@meta.data)
     nCells <- length(cell.names)
     rm(seu_wdoublets4); 
     gc() # Free up memory
@@ -165,9 +165,9 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     seu_wdoublets <- SCTransform(seu_wdoublets)
     options(warn=0)
     
-    rm(seu_wdoublets); 
-    gc()
-    Sys.sleep(10)
+    # rm(seu_wdoublets); 
+    # gc()
+    # Sys.sleep(10)
 
     print("Running PCA...#2")
     seu_wdoublets <- RunPCA(seu_wdoublets, npcs = length(PCs))
@@ -180,9 +180,9 @@ doubletFinder <- function(object, PCs, pN = 0.25, pK, nExp, reuse.pANN = FALSE, 
     cell.names <- rownames(seu_wdoublets@meta.data)
     nCells <- length(cell.names)
     
-    rm(seu_wdoublets2); 
-    gc()
-    Sys.sleep(10)
+    # rm(seu_wdoublets2); 
+    # gc()
+    # Sys.sleep(10)
   }
 
   # Compute pANN

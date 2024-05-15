@@ -18,13 +18,14 @@ parallel_paramSweep <- function(n, n.real.cells, real.cells, pK, pN, data, orig.
     seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
 
     print("Normalizing Seurat object...")
-    seu_wdoublets <- NormalizeData(seu_wdoublets,
+    seu_wdoublets1 <- NormalizeData(seu_wdoublets,
                                    normalization.method = orig.commands$NormalizeData.RNA@params$normalization.method,
                                    scale.factor = orig.commands$NormalizeData.RNA@params$scale.factor,
                                    margin = orig.commands$NormalizeData.RNA@params$margin)
+    rm(seu_wdoublets); gc()
 
     print("Finding variable genes...")
-    seu_wdoublets <- FindVariableFeatures(seu_wdoublets,
+    seu_wdoublets2 <- FindVariableFeatures(seu_wdoublets1,
                                           selection.method = orig.commands$FindVariableFeatures.RNA$selection.method,
                                           loess.span = orig.commands$FindVariableFeatures.RNA$loess.span,
                                           clip.max = orig.commands$FindVariableFeatures.RNA$clip.max,
@@ -35,9 +36,10 @@ parallel_paramSweep <- function(n, n.real.cells, real.cells, pK, pN, data, orig.
                                           nfeatures = orig.commands$FindVariableFeatures.RNA$nfeatures,
                                           mean.cutoff = orig.commands$FindVariableFeatures.RNA$mean.cutoff,
                                           dispersion.cutoff = orig.commands$FindVariableFeatures.RNA$dispersion.cutoff)
+    rm(seu_wdoublets1); gc()
 
     print("Scaling data...")
-    seu_wdoublets <- ScaleData(seu_wdoublets,
+    seu_wdoublets3 <- ScaleData(seu_wdoublets2,
                                features = orig.commands$ScaleData.RNA$features,
                                model.use = orig.commands$ScaleData.RNA$model.use,
                                do.scale = orig.commands$ScaleData.RNA$do.scale,
@@ -45,32 +47,34 @@ parallel_paramSweep <- function(n, n.real.cells, real.cells, pK, pN, data, orig.
                                scale.max = orig.commands$ScaleData.RNA$scale.max,
                                block.size = orig.commands$ScaleData.RNA$block.size,
                                min.cells.to.block = orig.commands$ScaleData.RNA$min.cells.to.block)
+    rm(seu_wdoublets2); gc()
 
     print("Running PCA...")
-    seu_wdoublets <- RunPCA(seu_wdoublets,
+    seu_wdoublets4 <- RunPCA(seu_wdoublets3,
                             features = orig.commands$ScaleData.RNA$features,
                             npcs = length(PCs),
                             rev.pca =  orig.commands$RunPCA.RNA$rev.pca,
                             weight.by.var = orig.commands$RunPCA.RNA$weight.by.var,
                             verbose=FALSE)
+    rm(seu_wdoublets3); gc()
   }
 
   if (sct == TRUE) {
     require(sctransform)
     print("Creating Seurat object...")
-    seu_wdoublets <- CreateSeuratObject(counts = data_wdoublets)
+    seu_wdoublets2 <- CreateSeuratObject(counts = data_wdoublets)
 
     print("Running SCTransform...")
-    seu_wdoublets <- SCTransform(seu_wdoublets)
+    seu_wdoublets3 <- SCTransform(seu_wdoublets2)
 
     print("Running PCA...")
-    seu_wdoublets <- RunPCA(seu_wdoublets, npcs = length(PCs))
+    seu_wdoublets4 <- RunPCA(seu_wdoublets3, npcs = length(PCs))
   }
 
   ## Compute PC distance matrix
   print("Calculating PC distance matrix...")
-  nCells <- nrow(seu_wdoublets@meta.data)
-  pca.coord <- seu_wdoublets@reductions$pca@cell.embeddings[ , PCs]
+  nCells <- nrow(seu_wdoublets4@meta.data)
+  pca.coord <- seu_wdoublets4@reductions$pca@cell.embeddings[ , PCs]
   # rm(seu_wdoublets);
   # gc()
   dist.mat <- fields::rdist(pca.coord)[,1:n.real.cells]
